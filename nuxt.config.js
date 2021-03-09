@@ -1,10 +1,11 @@
 import colors from 'vuetify/es5/util/colors'
 require('dotenv').config()
-const { GOOGLE_API_KEY } = process.env
+const { GOOGLE_API_KEY, API_URL } = process.env
 
 export default {
   env: {
     GOOGLE_API_KEY,
+    API_URL,
   },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
@@ -48,7 +49,9 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    baseURL: API_URL,
+  },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {

@@ -160,7 +160,7 @@ export default Vue.extend({
        */
       // @ts-ignore
       const placesResponse: AxiosResponse<PlacesResponse> = await this.$axios
-        .get('/api/places', {
+        .get('/places', {
           params,
         })
         .catch((error) => {

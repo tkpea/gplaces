@@ -98,7 +98,7 @@ export default Vue.extend({
         if (this.items.length > 0 || !this.search) return
         this.isLoading = true
         const autocompleteResponse: AxiosResponse<any> = await this.$axios.get(
-          '/api/places/autocomplete',
+          '/places/autocomplete',
           {
             params: {
               q: this.search,
@@ -114,7 +114,7 @@ export default Vue.extend({
     },
     async selectedItem(item: any) {
       const placeDetailResponse = await this.$axios
-        .get(`/api/places/${item.place_id}`)
+        .get(`/places/${item.place_id}`)
         .catch((error) => {
           console.error(error)
         })
