@@ -25,7 +25,6 @@ export type PlacesResponse = {
 }
 
 app.get('/places', async function (req, res) {
-  console.info('/placesを実行')
   const params: PlacesNearbyRequest['params'] = {
     location: (req.query.location as string) || '',
     radius: (Number(req.query.radius) as number) || 20,
@@ -39,23 +38,34 @@ app.get('/places', async function (req, res) {
     params.pagetoken = req.query.type as string
   }
 
-  console.info('placesNearbyを取得')
+  /**
+   * 近隣の施設一覧を検索する
+   */
   const placesNerby = (await placesNearby(params).catch((error) => {
-    console.log(error.response)
-    return res.send(error.response)
+    console.error('placesNerbyに失敗')
+    res.status(error.response.status).send(error.response.data)
   })) as PlacesNearbyResponseData
 
+  if (!placesNerby) {
+    return
+  }
+  /**
+   * 施設の詳細情報を取得する
+   */
   const places = await Promise.all(
     placesNerby.results.map(async (item) => {
       if (!item.place_id) return
       return (await getPlaceDetail(item.place_id).catch((error) => {
-        return res.send(error.response)
+        console.error('getPlaceDetailに失敗')
+        res.status(error.response.status).send(error.response.data)
       })) as PlaceDetailsResponseData['result']
     })
   )
-  if (!places) res.send(429)
+  if (!places) return
 
-  console.info('Directionを取得')
+  /**
+   * 施設の経路情報を取得する
+   */
   const directions = await Promise.all(
     places.map(async (item) => {
       const dir = (await getDirection({
@@ -64,14 +74,19 @@ app.get('/places', async function (req, res) {
         language: Language.ja,
         key: process.env.GOOGLE_API_KEY,
         mode: TravelMode.walking,
-      }).catch((error) => {
-        return res.send(error.response)
       })) as DirectionsResponseData
       return dir
     })
-  )
+  ).catch((error) => {
+    console.error('getDirectionに失敗')
+    res.status(error.status).send(error.data)
+  })
 
-  console.info('Photoを取得')
+  if (!directions) return
+
+  /**
+   * 施設の写真を取得する
+   */
   const photos = await Promise.all(
     places.map(async (item) => {
       if (!item?.photos || !item?.photos.length) return undefined
@@ -80,12 +95,15 @@ app.get('/places', async function (req, res) {
         maxheight: 300,
         maxwidth: 300,
         key: process.env.GOOGLE_API_KEY,
-      }).catch((error) => {
-        return res.send(error.response)
       })
       return photo
     })
-  )
+  ).catch((error) => {
+    console.error('getPlacePhotoに失敗')
+    res.status(error.response.status).send(error.response.data)
+  })
+
+  if (!photos) return
 
   const response: PlacesResponse = {
     next: placesNerby.next_page_token as string,

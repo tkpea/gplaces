@@ -76,6 +76,11 @@
         <v-skeleton-loader class="mx-auto" type="card"></v-skeleton-loader>
       </v-col>
     </v-row>
+    <v-row v-if="errorData">
+      <v-alert type="error" border="left" style="width: 100%">
+        {{ errorData.status }}
+      </v-alert>
+    </v-row>
   </v-container>
 </template>
 
@@ -99,12 +104,21 @@ type PlaceItem = {
   direction: DirectionsResponseData
   photo: string
 }
+type ErrorData = {
+  // eslint-disable-next-line camelcase
+  error_message: string
+  // eslint-disable-next-line camelcase
+  html_attributions: any
+  results: any
+  status: string
+}
 type DataType = {
   browserGeoPosition?: GeoPosition | undefined
   loading: boolean
   places: PlaceItem[] | []
   mapCenter?: GeoPosition
   placeRadius: number
+  errorData?: ErrorData
 }
 
 export default Vue.extend({
@@ -120,6 +134,7 @@ export default Vue.extend({
       places: [],
       mapCenter: undefined,
       placeRadius: 500,
+      errorData: undefined,
     }
   },
   async mounted() {
@@ -144,6 +159,7 @@ export default Vue.extend({
     },
     async getCurrentLocation() {
       this.loading = true
+      this.errorData = undefined
 
       const params = {
         location: `${this.mapCenter?.latitude || 0}, ${
@@ -151,7 +167,6 @@ export default Vue.extend({
         }`,
         radius: this.placeRadius,
       }
-      console.log('getPlacesResponse')
 
       /**
        * FIXME:
@@ -164,11 +179,15 @@ export default Vue.extend({
           params,
         })
         .catch((error) => {
-          console.error(error)
+          console.error(error.response)
+          this.errorData = error.response.data
         })
 
-      const places = placesResponse.data.places as any[]
       this.loading = false
+      if (!placesResponse) {
+        return
+      }
+      const places = placesResponse.data.places as any[]
       const directions = placesResponse.data.directions
       const photos = placesResponse.data.photos.map((item) => {
         if (!item) return undefined
@@ -183,7 +202,6 @@ export default Vue.extend({
         }
         return item
       })
-      console.log(this.places)
     },
 
     selectedPlace(place: any) {
