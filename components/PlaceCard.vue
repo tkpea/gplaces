@@ -1,5 +1,5 @@
 <template v-if="place">
-  <v-card @click="dialog = true">
+  <v-card @click.self="dialog = true">
     <v-img
       v-if="place.photo"
       :src="place.photo"
