@@ -11,14 +11,14 @@
       :loading="isLoading"
       item-text="description"
       item-value="API"
-      label="場所を探す"
-      placeholder="キーワードを入力してEnterを押してください"
+      label="施設名や場所の名前を入力"
+      placeholder="施設名や場所の名前を入力してEnterを押してください"
       data-element="autocomplete-element"
     >
       <template #no-data>
         <v-list-item>
           <v-list-item-title>
-            キーワードを入力してEnterを押してください
+            施設名や場所の名前を入力してEnterを押してください
           </v-list-item-title>
         </v-list-item>
       </template>
@@ -87,7 +87,6 @@ export default Vue.extend({
   methods: {
     async keyboardEvent(e: KeyboardEvent) {
       const focused = document.activeElement
-      console.log(e.key)
       if (!focused) return
       if (
         e &&
@@ -108,7 +107,6 @@ export default Vue.extend({
         this.isLoading = false
         if (autocompleteResponse) {
           this.response = autocompleteResponse.data
-          console.log(this.response)
         }
       }
     },
