@@ -14,11 +14,49 @@
       </v-tabs>
       <v-tabs-items v-model="tab" class="my-4">
         <v-tab-item key="detail">
-          <tree-view
-            :data="place.detail"
-            :options="{ maxDepth: 3 }"
-            style="min-height: 12em; background: #000; padding: 5px"
-          ></tree-view>
+          <v-simple-table dense>
+            <tbody>
+              <tr>
+                <th>価格帯</th>
+                <td>{{ place.detail.price_level | placeLevelJa }}</td>
+              </tr>
+              <tr>
+                <th>電話番号</th>
+                <td>
+                  {{ place.detail.formatted_phone_number }}
+                </td>
+              </tr>
+              <tr>
+                <th>住所</th>
+                <td>
+                  {{ place.detail.formatted_address }}
+                </td>
+              </tr>
+              <tr>
+                <th>評価</th>
+                <td>
+                  <v-rating
+                    length="5"
+                    size="14"
+                    :value="place.detail.rating"
+                  ></v-rating>
+                </td>
+              </tr>
+            </tbody>
+          </v-simple-table>
+          <v-divider />
+          <v-expansion-panels accordion class="mt-4">
+            <v-expansion-panel key="json">
+              <v-expansion-panel-header>JSON</v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <tree-view
+                  :data="place.detail"
+                  :options="{ maxDepth: 3 }"
+                  style="min-height: 12em; background: #000; padding: 5px"
+                ></tree-view>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-tab-item>
         <v-tab-item key="photos">
           <tree-view
@@ -55,6 +93,22 @@
 <script lang="ts">
 import Vue from 'vue'
 export default Vue.extend({
+  filters: {
+    placeLevelEng(val: number): string {
+      const textEnglish = [
+        'Free',
+        'Inexpensive',
+        'Moderate',
+        'Expensive',
+        'Very Expensive',
+      ]
+      return textEnglish[val]
+    },
+    placeLevelJa(val: number): string {
+      const textEnglish = ['無料', '安い', '普通', '高級', '超高級']
+      return textEnglish[val]
+    },
+  },
   props: {
     place: {
       type: Object,

@@ -1,5 +1,5 @@
 <template v-if="place">
-  <v-card @click.self="dialog = true">
+  <v-card @click="dialog = true">
     <v-img
       v-if="place.photo"
       :src="place.photo"
@@ -42,9 +42,10 @@
         v-if="place.detail.website"
         :href="place.detail.website"
         target="_blank"
+        @click.stop=""
         >website</v-btn
       >
-      <v-btn :href="place.detail.url" target="_blank">map</v-btn>
+      <v-btn :href="place.detail.url" target="_blank" @click.stop="">map</v-btn>
     </v-card-actions>
     <v-dialog v-model="dialog" width="600">
       <PlaceDetail :place="place" />
